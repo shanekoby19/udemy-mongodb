@@ -1,0 +1,18 @@
+Find 
+    - Returns a cursor object. 
+    - An object with lots of metadata that allows us to effiently retreive data as needed.
+    - Helps to resolve fetching large amounts of data if the resulting dataset is large.
+    - "it" command - fetches addition data on the cursor.
+    - "toArray()" - fetches all documents regardless of the size of the resulting dataset.
+    - "forEach()" - executes a function for each document returned by the cursor. 
+        - fetches data on demand, ideal for large datasets.
+
+Projection
+    - Allows us to filter out unwanted fields from our collections.
+        - Bandwitch performance upgrade, only get what you need.
+    - The second arguement to Collection.find({}, { 'projection' })
+    - An object of field and value pairs
+    - The value 1 tells mongoDB to include the field in the document(s) returned.
+    - The value 0 tells mongoDB to explicity exclude the field in the document(s) returned.
+        - Helpful for _id field which is always return by default.
+
