@@ -1,0 +1,13 @@
+- Starting the mongodb shell
+    - Run the mongod command to start the database.
+        - You will need a folder to store all the local data.
+        - You will also need a folder to store all the logs.
+            - Lastly, you will need a log file - Convention: mongo.log
+        - mongod --dbpath [path to database folder] --logpath [path to log file]
+    - Run the mongo command to start the mongoDB shell.
+
+- Helpful Commands
+    - Shell - Command + T - New Tab
+    - Shell - Command + N - New Window
+    - Shell - Command + K - clear output
+        
