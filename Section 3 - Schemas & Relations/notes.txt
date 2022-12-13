@@ -1,0 +1,63 @@
+Schemas
+    - By default, mongodb does not enforce any schema rules on your collections.
+        - Gives you complete freedom on how your documents are designed.
+    - However, you are probably going to want to enforce some set of rules.
+        - Ex: All products should have a name and price.
+    - To enforce rules on your collections you can define schema rules.
+
+Data Types
+    - String (text)
+        - No limitations outside of 16MB size 
+        - used to store text values.
+    - Booleaan
+        - True or False
+    - Number
+        - Int32 - 32 Bit Integer
+        - Int64 - 64 Bit Integer
+        - NumberDecimal
+            - Used to store very precise decimal numbers.
+    - ObjectId
+        - Guaranteed to be unique if created by MongoDD.
+        - Has built in timestamp so can be sorted by creation date.
+    - ISODate, Timestamp
+        - Date Object
+        - Time Object
+    - Embedded documents
+        - Documents containing any datatypes.
+    - Array
+        - A type of object that holds multiple values of the same datatype.
+
+Structing Data
+    - Which data does my app need or generate?
+        - Helps to define fields
+    - Where do I need my data?
+        - Helps to define collections and field groupings
+    - Which kind of data do I want to display?
+        - Helps to define what queries you will need
+    - How often do I fetch my data?
+        - Defines whether you should optimize for easy fetching
+    - How ofter do I write or change the data?
+        - Defines whether you should optimize for easy writing
+
+Relationships and your data
+    One-To-One
+        - Embedded
+            - Typically used in one-to-one Relationships
+            - Strong connections between the data, access patterns are strongly connected.
+        - References
+            - Rarely used in one-to-one relationships
+    One-To-Many
+        - Often modeled as both embedded or referenced
+        - How closely is the data coupled? 
+            - Not so close - reference
+            - Very close - embedded
+        - Can the many side grow infinitly? 
+            - Yes = reference - 16MB document size
+            - No = either
+        - What are the read write patterns of the data.
+            - Heavy write - reference
+                - If you are constantly changing data in many to many relations that 
+                - data will be all over the database and therefore costly to change.
+            - Heavy read - embedded
+                - If the data rarely changes then you can just embedded the document
+                - and if it changes update it as needed.
