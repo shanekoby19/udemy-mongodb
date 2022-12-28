@@ -1,0 +1,40 @@
+Creating Documents
+    insertOne - Takes a single document (object).
+    insertMany - Takes multiple documents (array).
+        - ordered: Controls whether the insert operation performed continues after a failed attempt.
+            - True: (default) - Will not continue on failed insert.
+            - False: - Will continue on failed insert.
+    insert - Inserts an object or array.
+        - Disadvantages 
+            - Does not return the objectId
+            - Recommended to use insertOne and insertMany
+    mongoimport - A tool used to import large datasets into MongoDB
+
+writeConcern
+    - All insert operations can take an options argument of writeConcern.
+    - The storage engine will take the data you give it and write it to memory then the disk.
+        - Default behavior = { w: 1, j: undefined }
+        - w - whether or not you should wait for a server response before returning.
+            - 1: Yes, wait.
+            - 0: No, do not wait.
+        - j - journaling.
+    - Journal - A small file the storage engine can track to determine operations that aren't already in memory.
+        - A back-up in case memory is wiped.
+        - Not used by default
+            - { j: true } set j to true to set the journal to track writes.
+
+What is Atomicity?
+    MongoDB guarantees an atomic transaction. The transaction must fully succeed or fully fail.
+        - Fail - Any transaction changes are rolled back.
+        - Success - All transaction changes are saved.
+        - Occurs on a document level.
+
+MongoImport
+    - A tool used to import data into MongoDB
+    - mongoimport (filename)
+        - Commands
+            -d - Specify what database to add the data to
+            -c - Specify what collection to add the data to.
+            --jsonArray - Specifies the data is an array of JSON objects (documents)
+            --drop - Specify to drop data in that collect should it already exist.
+        
