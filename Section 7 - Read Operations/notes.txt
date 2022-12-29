@@ -1,0 +1,100 @@
+Methods, Filters & Operators
+    - Methods - Apply some operation to the database
+        - find, insertOne, updateOne, ect
+    - Filters - Return a subsets of the data based on specified conditions
+        - find({ age: 32 })
+            - Equality filter - searches for an exact match
+    - Operators - Allow for flexible searches
+        - objects
+            - the field will be a mongo operator and the value is set by the user.
+            - $gte: - greater than or equal to
+            - $lte - less than or equal to
+            - many many more...
+        - find({ age: { $gte: 32 }})
+            - Find all instances where age is greater than or equal to 32.
+
+Read Operators (Query vs Projection)
+    Query Operators allow you to find data that you need.
+        - Find all people who are older than 30.
+    Project Operations allow you to present data in the best way possible
+        - Remove a field / Add a field
+
+Querying Nested Documents and Arrays
+    - Nested documents
+        - use quotings and not dotation.
+            - "rating.average" { name: Shane, rating: { average: 2.2 }}
+    - Nested Arrays
+        - if the array is not top level you will need to use dot notation.
+        - default operation is "in". (is value "in" the array)
+            - db.movies.find({ genres: 'Drama' })
+            - is there a top level array that named 'genres' that includes the genre 'Drama'
+
+$in & $nin
+    in - Checks to see if a value is in the given array.
+    nin - Checks to see if the value is not in the given array.
+
+Logical Operators
+    - Logical operators always start the query.
+    - Should be an array of conditions.
+        - Ex: db.movies.find({ $or: [{ name: 'Die Hard' }, { name: 'Jumangi' } ]})
+    - $or - Returns document where any of the condition are true.
+    - $nor - Returns document where none of the conditions are true.
+        - Inversion of $or
+    - $and - Returns documents where all of the conditions are true.
+        - default behavior of your query.
+        - you only need to use and if you have multiple conditions on the same field.
+        - Ex: db.movies.find({ $and: [{ genres: 'Horror' }, { genres: 'Drama' }] })
+    - $not - Inverts the affects of a query. 
+        - Ex: Find all movies that no do have a runtime of 60 minutes.
+            - db.movies.find({ runtime: { $not: { $eq: 60 } } })
+        - Most queries can be inverted without the complex logic.
+            - the $not operator is niche.
+            - db.movies.find({ runtime: { $ne: 60}})
+                - Produces the same result as above.
+
+Element Operators
+    Exists - Returns documents where the field exists.
+        Example Data [{ 
+            name: 'Shane', 
+            age: 26
+            phone: 239482354
+        }, { 
+            name: 'Scott', 
+            age: 33, 
+            coffee: true,
+            phone: "1203490232" 
+        }, {
+            name: 'Shelby',
+            age: 28,
+            coffee: null,
+            phone: "2832398328"
+        }]
+        - Find all users where the field exists.
+            - Example Query db.users.find({ coffee: { $exists: true }})
+        - exists only returns if the field value is present in the document.
+            - null documents will be returned.
+            - to filter out null use { $ne: null }
+            - Example Query db.users.find({ coffee: { $exists: true, $ne: null }})
+    
+    Type - Returns documents where a field is of a certain type.
+        - Find all people who have a number for there age.
+        - Example Query: db.users.find({ age: { $type: 'int' } })
+
+Evaluation Operators
+    $regex - Allows you to search text field using regular expressions.
+        - Not very performant, should use text indexes if this operation is frequently used.
+
+Array Operators
+    $size - Returns documents where an array field is a certain size.
+        - Must be an exact match cannot use $lt(e) or $gt(e) queries.
+    
+    $all - Returns documents where an array field contains all of the elements in an array you specify.
+        - Does not matter if they are in the correct order.
+    
+    $elemMatch - Returns documents where an array elements matches an element you specify.
+
+Cursors
+    Allow you to fetch your data in batches.
+        - If you have thousands of documents returning from a query chances are you don't need all that data at once.
+        - Cursors allow you to limit the data retreived from a query.
+    - Count - a cursor method that returns the count of documents.
