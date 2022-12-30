@@ -1,0 +1,77 @@
+updateOne and updateMany
+    - Ex: db.users.updateOne({ filterCriteria }, { updateCriteria }, { options })
+    - updateOne - updates the first document found with the filter match
+    - updateMany - updates all documents found with the filter match.
+    - the updateCriteria starts with an update operator then the update.
+        - Ex db.users.updateOne({ name: 'Shane' }, { $set: { age: 32 } })
+
+$set - used to overview or add a new field to a document.
+
+$inc
+    - Used to update numeric values.
+    - Update age by 10 years.
+        - Ex: db.users.updateOne({ name: 'Shane' }, { $inc: { age: 10 } })
+    - $inc can also be used to decrement a value, just pass a negative number.
+
+$min $max and $mul
+    - $min - updates a value if it's current value is greater than the update value.
+    - $max - updates a value if it's current value is less than the update value.
+    - $mul - updates a value by multiplying it's current value time the multiplier provided.
+
+$unset - remove or drops a field from matching documents.
+    - Example: db.users.updateOne({ name: 'Shane' }, { $unset: { phone: '' } })\
+
+$rename - renames a field for any matching documents.
+    - You will likely want to use an empty filter object to ensure you change all documents in the collection.
+
+$upsert - a combination of inserting and updating
+    - Mongo will first try and update a document.
+    - If no document is found with the filter criteria a document will be inserted with the update criteria as it's values.
+    - Passed as a options parameter to updateOne and updateMany
+
+///////////////////////// UPDATING ARRAYS /////////////////////////
+Updating a single array element.
+    - use elemMatch to find the document.
+    - use set with $ as a placeholder for that array value.
+    - only updates the first matching value for the array.
+
+Updating every value in an array.
+    - use a filter query to find the array you want to update.
+    - use an upate operator with the $[] syntax to update all elements in that document array.
+
+Update array elements conditionally
+    - use a filter query to find the array you want to update.
+    - use an update operator with the $[var] syntax to update the matching array.
+    - use the arrayFilters options object to set the conditional update.
+        - { arrayFilters: [ { "var.frequency: { $gte: 2 } } ] }
+        - arrayFilters takes an array of filter conditions.
+        - the "var" will be the array and you can set what conditons you need to pass to perform the update.
+
+Adding Values to an array.
+    $push - use the push operator to add element(s) to an array
+        - Example db.users.updateOne({ name: 'Shane' }, { $push: { hobbies: { title: 'Sports', frequency: 2 } } })
+    - You can also add multiple items to an array using $push and $each together.
+        - Example db.users.updateOne({ name: 'Shane' }, { $push: { hobbies: { $each: [{ document1, document2, document3 }] } } })
+        - You can also you $sort to sort the data before inserting it into the array.
+            - sort takes an object where you specify what field to sort by.
+                1 - ascending
+                -1 - descending
+
+Removing values from an array.
+    $pull - Removes all elements that meet the filter condition.
+    $pop - removes the first or last element from an array.
+        - 1 - remove the last element in the array.
+        - -1 - remove the first element in the array.
+
+$addToSet
+    used as an alternate to $push, with the key difference that $addToSet will not add the document to the array if it already exists.
+
+
+
+///////////////////////// DELETING DOCUMENTS /////////////////////////
+deleteOne and deleteMany
+    - deleteOne deletes the first document to match the filter condition
+    - deleteMany deletes all the documents that match the filter condition
+        - to delete all documents user db.collection.deleteMany({})
+        - the empty filter object will match all documents in the collection
+            - note this will not delete the collection just the documents inside it.
