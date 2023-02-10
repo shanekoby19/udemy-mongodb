@@ -1,0 +1,62 @@
+  //////////////////////////// INDEXES IN MONGODB ////////////////////////////
+
+Why Indexes?
+    Indexes help to improve the speed of your queries.
+        - Assume you have the following query. db.users.find({ name: 'Shane' })
+        - Without indexes, MongoDB will perform a collection scan.
+            - Scans every document in the collection.
+        - With indexes, MongoDB will perform a index scan.
+            - Scans an indexed array with the values of the field the index is on.
+            - Those values are sorted and searched like a binary tree.
+                - Improved speed.
+                - Index values are pointers to the document.
+                - Two seperate data entities.
+    - Should you index everything? NO!
+        - Indexes are expensive.
+        - When inserting documents the indexes must be updated. (re-sorted)
+        - If you have queries that return large portions of your dataset indexes can actually slow down that query.
+            - You first have to look through the indexes then you will have to return all the documents on that index.
+            - A good rule of thumb is an indexed field should only return 0%-20% of the dataset.
+
+Adding a single field index
+    - You can use the explain method on a collection to get detailed results about the operation.
+        - Works for find, delete and update but not insert.
+        - Ex: db.users.explain("executionStats").find({ age: { $gte: 25 } })
+            - Produces an output that tells you how well the query executed and what path it took.
+
+    - use db.collection.createIndex() to create an index on a field.
+        - Example db.users.createIndex({ 'dob.age': 1 })
+            - Creates an index on the users collection
+            - Top level fields and embedded fields can both be indexed.
+            - Pass a document to createIndex giving it the field and the sort order.
+
+Creating a compound index
+    - Compound indexes can be used from left to right.
+    - They can be used as a whole or standalone.
+        - Only the first index can be used as a standalone index.
+    - Example: db.users.createIndex({ name: 1, age: 1 })
+        - An index is created and sorted by name first and age second.
+        - queries for name and age will use the index.
+        - queries for name will use the index.
+        - queries for age will can not use the index.
+
+Using Indexes to sort
+    - When you sort on an indexed field mongodb can quickly sort those documents using the indexed values.
+        - Remember indexes include every value of a field in a sorted array. 
+    - If you are using sort without an index make sure you are returning too large of a dataset.
+        - Max memory for sorting is 32MB.
+
+Configuring Indexes
+    - You can pass an optional configuration object to the createIndex() method.
+        - db.collection.createIndex( { name: 1 }, { unique: true } );
+        - Creates an index on the name field AND ensures it's unique.
+
+Partial Filters
+    Used when certain values of an index are never used.
+    - The problem: storing unneccessary data in an index is going to be costly.
+    - Example: A part of an application on seniors (60+) would use. 
+        - No need to store data on younger users in the index.
+    - Write it: db.collection.createIndex({ age: 1 }, { partialFilterExpression: { age: { $gte: 30 } } })
+    - Pass the option parameter partialFilterExpression and provide a query expression.
+    - Any data inside of the partial filter will use an ixscan.
+    - Any data outside of the partial filter will use a collscan.
