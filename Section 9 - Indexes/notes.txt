@@ -60,3 +60,110 @@ Partial Filters
     - Pass the option parameter partialFilterExpression and provide a query expression.
     - Any data inside of the partial filter will use an ixscan.
     - Any data outside of the partial filter will use a collscan.
+
+Time To Live Index
+    - An index that removes all of it's values after a set amount of time.
+        - db.collection.createIndex({ email: 1 }, { expiresAfterSeconds: 10 })
+            - Creates and index on the email field that removes all keys and values every 10 seconds.
+        - Useful when building application that need to destroy there own data.
+            - Cart or cookies.
+
+Query Diagnosis & Query Planner
+    - options for the explain method of your find queries.
+        - "queryPlanner" - Shows summary for executed query + winning plan.
+        - "executionStats" - Show detailed summary for execution query, winning plan, and any rejected plans.
+        - "allPlansExecution" - Shows detailed summary for executed query, winning plan, and winning plan decision process. 
+    - How do we check for efficient queries?
+        - Look at the milliseconds process time
+            - compare to another solution
+            - Example: Indexed field vs non-indexed field.
+        - # of keys examined
+        - # of documents examined
+        - # of documents returned
+
+Covered Queries
+    - queries that can be returned without ever examining a document.
+        - One of the fastest queries you can have.
+        - Remember the index has a value and that value's key is a point to the document.
+        - If you only need the key from the index you can use projection to never examine a document.
+        - Example: db.collection.find({ name: 'Shane' }, { _id: 0, name: 1 })
+            - Assume an index is created on the "name" field - db.collection.createIndex({ name: 1 })
+            - Since every name is indexed and you aren't returning the entire document the query never has to examine any documents.
+            - It simply looks for the key and returns it when found.
+
+How does MongoDB choose the best plan?
+    - MongoDB will come check for all ways it can get your data.
+    - Once it's found every possible way, a query is executed for each route to see which is faster.
+    - The fastest query is stored in cache.
+    - Cache is cleared when:
+        - you reach a write threshold (1000 writes)
+            - The database has changed enough that another query could be faster now.
+        - the index is rebuilt
+        - other indexes are added or removed
+            - The winning plan could change if a faster router is added or the fastest route is removed
+        - mongodb server is restarted
+            - clears all cache.
+
+Multi-key index
+    - Multi key indexes are indexes that have multiple keys pointing to the same document.
+    - Because multiple keys point to the same document these multi-key indexes grow quickly in size.
+        - Use these only if you have a good use case.
+    - Assume you want to index a field that contains an array.
+        - Every value in that array is going to be indexed and each value in that array will point to the original document.
+    - Note: If you are indexing an array of nested documents, the index will only be used when searching for entire documents.
+        - This means you cannot use the index to search for a field using dot notaion.
+        - MongoDB will simply perform a collection scan.
+    - Note: You can also index a document using a multi key index.
+        - Works similarly to an array
+        - Each key is indexed as a key with it's value point to the original document.
+    - One important restriction: You can not have a compount index with more than one multi-key indexes.
+        - MongoDB would have to store cartesian product of multi-key indexes.
+        - Too large to fast.
+        - You can however can a single key index and one multi-key index in a compound index.
+
+
+Understanding "text" indexes
+    - Although you can you regex to search text, a text index is more performant.
+    - A text index is an index created of key words from one of your text fields.
+        - Removes stop words ("is", "a", "the")
+    - CASE INSENSITIVE
+    - Example: 'The dog jumped over the moon'
+        - Each keyword that isn't a stop word is stored in the index with a pointer the original document.
+    - You can only have one text index per collection, they are expensive.
+    - Creating a text index
+        - db.collection.createIndex({ name: 'text' })
+        - if you create the index by using { field: 1 } it creates an alphabetically index. This is not a 'text' index.
+    - Using the text index.
+        - db.collection.find({ $text: { $search: 'moon' } });
+        - Since you can only have one text index per document there is no need to pass the field when searching.
+        - Returns all descriptions containing the word 'moon'.
+    - Sorting text Index
+        - MongoDB keeps track of the best match by scoring the documents returned from a text search.
+        - data is stored on the $meta object in the "textScore" field.
+        - Using projection: db.collection.find({ $text: { $search: 'moon' } }, { score: { $meta: "textScore" } })
+        - You can then sort the data.
+            - db.collection.find({ $text: { $search: 'moon' } }, { score: { $meta: "textScore" } }).sort({ score: { $meta: "textScore" } })
+    - Dropping a text index
+        - You cannot write: db.collection.dropIndex({ description: "text" })
+        - You have to drop it by name.
+            - db.collection.dropIndex("description_text")
+    - Combined text indexes
+        - Although you only get one text index per collection you can create a combined text index.
+        - Every indexed field will be search when using the $text and $search operators.
+        - Example: db.collection.createIndex({ title: 'text', description: 'text' })
+    - Option object
+        - Weights - weights help you determine how a combined text index should be score.
+        - If you have two fields but one is more important than the other set the weight option.
+        - Example: db.collection.createIndex( { title: 'text', description: 'text' }, { weights: { title: 1, description: 2 } })
+            - In this example description is has twice the weight of title.
+
+Building Indexes
+    - Foreground 
+        - Faster but it locks the collection
+        - Bad for production applications
+        - Default when using the createIndex method.
+    - Background
+        - Slow but the collection is still accessible
+        - Good for production applications
+        - Pass { background: true } as an option in the createIndex method.
+        - Example db.collection.createIndex({ email: 1 }, { background: true })
