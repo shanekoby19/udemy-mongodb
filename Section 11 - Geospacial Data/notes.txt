@@ -1,0 +1,47 @@
+GeoJSON Structure
+    - Reference: https://www.mongodb.com/docs/manual/reference/geojson/
+
+    - GeoJSON is a structure used to describe geospacial data in a JSON format.
+    - You can use any field name for your GeoJSON data.
+    - You have to specify an embedded document (object) with two specials keys (type, coordinate)
+    - The type can one of several options, most frequent is point.
+        - Point describes a single locations on the map.
+    - Coordinates are the longitude, latitude
+        - ORDER MATTERS
+
+Using the $near operator.
+    - Reference: https://www.mongodb.com/docs/manual/reference/operator/query/near/#mongodb-query-op.-near
+
+    - In order to use a near query you first need to have an index on your GeoJSON field.
+        - db.createIndex({ location: "2dsphere" })
+        - Creates an index where the distance from each location is stored.
+    - Next you will need to use the $geometry operator to create a search point.
+    - You can also pass a maxDistance and minDistance after you create your geometry
+    - Example: db.collection.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [-113.2123123, 23.238424] }, maxDistance: 30000, minDistance: 300 } } })
+
+Using the $geoWithin operator
+    - Reference: https://www.mongodb.com/docs/manual/reference/operator/query/geoWithin/#mongodb-query-op.-geoWithin
+
+    - $geoWithin allows you to search a coorinate area to see if a location falls within that area.
+    - $geoWithin takes a $geometry object that defines the search area.
+    - $geometry takes a type of 'Polygon' and any number of coordinate pairs.
+        - The coordinate pairs must start and end with the same coordinate. (closed loop)
+        - The coordinates key must be an array of coorinates points which are also arrays [lat, long]
+    - Assume you want to search a perfect rectangle.
+        - Example: db.collection.find({ location: { $geoWithin: { $geometry: { type: 'Point', coordinates: [point1, point2, point3, point4, point1] } } } })
+
+Finding places within a radius
+    - Reference: https://www.mongodb.com/docs/manual/reference/operator/query/centerSphere/#mongodb-query-op.-centerSphere
+
+    - Also uses the $geoWithin operator
+    - Instead of $geometry operator you use the $centerSphere operator.
+    - The center sphere takes an array [coorinates, radians]
+        - The coordinates are the center point of the sphere
+        - The distance in from miles or kilometers to radians can be converted by:
+            - miles / 3963.2
+            - kilometers / 6371
+    - Note these are direct distances. Most distances if traveled by car or foot will be greater.
+        - Think of how an airplane travels, there are no objects in it's path.
+    - The returned elements are not sorted.
+        - If you want sorted elements use the $nearSphere operator
+    
