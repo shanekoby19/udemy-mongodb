@@ -1,0 +1,37 @@
+Why do we need the Aggregation Framework?
+    - Although we also attempt to store data in the way we intend to retrieve it, this is not alway possible.
+    - The Aggregation Framework helps us to manipulate data to provide complex retrival methods
+    - A customer facing app might have data scientist who need data in a particular format.
+        - Not going to store the data in the format of a data sciencist (too complex)
+        - We can use the Aggregation Framework to help retrieve the data in this format.
+
+What is the Aggregation Framework?
+    - Reference: https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
+
+    - The Aggregation Framework takes the form of a pipeline.
+    - In each stage of the pipeline you can manipulate the data that is found.
+    - 4 Stages
+        - $match, $sort, $group, $project
+
+Using $match
+    - Reference: https://www.mongodb.com/docs/manual/reference/operator/aggregation/match/#mongodb-pipeline-pipe.-match
+
+    - The match operator works very similarily to the find method.
+    - It takes a document where you specify what values should be returned.
+    - The aggregate method can take advantage of your indexes just like the find method can.
+
+Using $groupr
+    - Reference: https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/#mongodb-pipeline-pipe.-group
+
+    - The $group operator allows you to merge values from multiple documents into a single document.
+    - The $group operator takes a document that defines the shape of the document returned.
+    - _id is used to determine which field you want to group by.
+        - The value for _id must be a document.
+        - The first value in this document is the name you want for the returned document, the second is the field you want to group by.
+        - When using a field from your collection it must start with a $.
+            - "$dob.age"
+    - Next define a field where you will store the result of an accumulator function.
+    - Accumulator functions merge like documents into a single value.
+        - $sum, $avg, $min, $max, ect.
+    - Example { $group: { _id: { state: "$location.state" }, averageAge: { $avg: "$dob.age" } } }
+    
