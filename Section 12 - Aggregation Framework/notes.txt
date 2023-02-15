@@ -20,7 +20,7 @@ Using $match
     - It takes a document where you specify what values should be returned.
     - The aggregate method can take advantage of your indexes just like the find method can.
 
-Using $groupr
+Using $group
     - Reference: https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/#mongodb-pipeline-pipe.-group
 
     - The $group operator allows you to merge values from multiple documents into a single document.
@@ -35,3 +35,21 @@ Using $groupr
         - $sum, $avg, $min, $max, ect.
     - Example { $group: { _id: { state: "$location.state" }, averageAge: { $avg: "$dob.age" } } }
     
+Using $project
+    - Reference: https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/#mongodb-pipeline-pipe.-project
+
+    - The $project stage is a great place to manipulate how your data looks and what is returned from your dataset.
+    - Much like the project object in a find query you can omit a field by settings it's value to 0.
+        - { _id: 0, "dob.age": 0 }
+    - Similarly you can specify you only want to return a certain set of fields by setting their values to 1.
+        - { _id: 0, "dob.age": 1 }
+        - Only returns dob.age
+    - The project stage in the aggregation pipeline is more powerful than the find queries.
+        - You can use pipeline operators to change the way the data is returned.
+        - Return the full name for a nested name document. 
+        - Assume: { name: { first: 'Shane', Last: 'Kobylecky' } }
+        - { $project: { fullName: $concat:["$name.first", " ", "$name.last" ] } }
+            - Returns a fullName field with the values of name.first combined with name.last with a space in the middle.
+            - There are SEVERAL pipeline operators.
+            - Reference: https://www.mongodb.com/docs/manual/reference/operator/aggregation/
+            
