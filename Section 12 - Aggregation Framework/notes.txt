@@ -52,4 +52,61 @@ Using $project
             - Returns a fullName field with the values of name.first combined with name.last with a space in the middle.
             - There are SEVERAL pipeline operators.
             - Reference: https://www.mongodb.com/docs/manual/reference/operator/aggregation/
-            
+
+Using $push
+    $push allows you to push elements into a new created array.
+
+Using $unwind
+    - Unwind can be used to create multiple documents when a document has an array field with multiple values.
+    - A document is created for each array value. That document will have the same keys and values for all other fields. 
+        - Similar to array.flat() in javascript.
+
+Elimating duplicates
+    - You can use $addToSet instead of $push to create unique arrays.
+    - Each value is only pushed onto the new array if it is unqiue to that array.
+
+Array Projection
+    You can use array projection to manipulate array data into the form you need it to be in.
+
+    - $slice - used to get chronological elements out of an array.
+        - $slice: ["$myArray", 1] - Gets the first element from the array.
+        - $slice: ["$myArray", 2, 1] - Starts at index 2 of the array and gets 1 element.
+            - In this syntax you will retreive the third element from the array.
+        - $slice ["$myArray", -2] - Starts at the end of the array and grabs the last two elements.
+
+    -$filter - used to filter arrays based on some condition
+        - Example: { $filter: { input: "$scoresArray", as: "score", cond: { gt: [$$score.grade, 60] } } }
+            - input - The array field you want to filter through.
+            - as - the name of each element that will run through the filter function
+            - cond - an expression that resolves to true or false.
+
+        - All values in the original array that pass the condition will be returned to a new array.
+
+The $bucket stage
+    - The bucket stage allows you to quickly group your data and report on those groupings.
+        - groupBy - A field that allows you to group common data points together.
+            - groupBy: "$dob.age"
+        - boundaries - These are your buckets.
+            - Specified as an array like [18, 30, 42, 54, 66]
+        - output - the data you want to see for the buckets.
+            - These are aggregation functions
+            - numPersons: { $sum: 1 }
+            - averageAge: { $avg: "$dob.age" }
+
+    - Note: there is also an autoBucket stage which will automatically create buckets based on your data.
+        - remove boundaries and add buckets.
+        - buckets is the number of buckets you want mongo to create.
+        - mongo will determine the best distribution points.
+
+A few other Stages
+    $limit - limits the number of results returned from the query.
+    $skip - skips results from the current dataset.
+        - $match, $skip, $limit should be in the correct order when used.
+        - MongoDB has some optimization for this but it's typically pretty easy to order.
+    $out - Pipes the data from the pipeline into a new collection or database and collection.
+        { db: "myNewDB", coll: "myNewCollection" }
+        - Note db is optional. If it's not specificed a new collection will be created in the current database.
+
+One Note
+    - Only the first stage has access to indexes.
+    - Each additional stage only gets the output from stage 1.
