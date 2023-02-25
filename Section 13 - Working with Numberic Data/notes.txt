@@ -1,0 +1,49 @@
+Number Types Overview
+    - 4 Number types in MongoDB
+    - Integer (32 bit)
+        - Only whole numbers
+        - Used for most whole number cases. Roughly -2 billion  -> 2 billion
+    - Longs (64 bit)
+        - Only whole numbers - larger than the regular Integer type.
+        - Used for cases when the values stored might be larger than 2 billion.
+    - Doubles (64 bit)
+        - Numbers with a decimal place.
+        - Default for all number types that aren't defined.
+        - Decimal values are APPROXIMATED
+        - Use when you have regular numbers that need a decimal place.
+    - High Precision Doubles
+        - Numbers with a decimal place, lots of values after the decimal.
+        - more precise doubles.
+        - Up to 34 decimal digits are stored with precision.
+        - Used for mathematical application when digits must be precise.
+
+MongoDB Shell Note
+    - The MongoDB shell is writen in Javascript therefore the default numeric types will be Javascript default numberic types.
+    - In Javascript all numbers are stored as 64 bit floats by default.
+    - Changing this behavior will depend on which driver you are using.
+        - From what we learned so far that will be NodeJS.
+
+NumberInt
+    - Use the NumberInt wrapper to create a 32 Integer value.
+    - You must you the wrapper anytime you create or update your data to keep that data type.
+    - If you forget to wrap it on insert or update the shell will store it as a 64 bit double.
+    - Ex: db.companies.insertOne({ valuation: NumberInt("312332") })
+
+NumberLong
+    - Use the NumberLong wrapper to create a 64 bit integer value.
+    - Same rules apply when inserting and updating.
+    - Ex: db.companies.insertOne({ valuation: "382383292332" })
+
+Double
+    - The default number type for the MongoDB shell is Double.
+    - Although it might not look like a double behind the scenes it's store as a double.
+        - The javascript engine will output approximate values, this is why it doesn't always look like a double.
+    - These values are not precise. 
+    - 0.3 will be stored something like 0.3000000000002
+        - Assume you have { a: 0.3, b: 0.1 }
+        - a - b might produce -> 1.999999999998
+        - For most cases, this is fine.
+    - If you need precise values use the NumberDecimal constructor in the shell.
+        - Assume you have { a: NumberDecimal("0.3"), b: NumberDecimal("0.1") }
+        - a - b will always produce 0.2
+        - Same rules apply for insert and update as NumberInt & NumberLong.
