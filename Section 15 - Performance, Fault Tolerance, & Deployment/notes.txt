@@ -1,0 +1,58 @@
+What Influences Performance?
+    - Efficient Queries / Operators
+    - Indexes
+    - Fitting Data Schema
+
+Capped Collections
+    - Capped collections are collections that limited in size and or document count.
+    - They collections are typically used for caching or logs.
+    - Documents are inserted to the point when size or document count has been exceeded.
+        - Once size or document count is exceeded the oldest records are deleted to make room for new records.
+    
+    - Creating a capped collection
+        - Ex: db.createCollection('myCappedCollection', { capped: true, size: 10000, max: 10 })
+        - the first argument to createCollection is the collection name.
+        - The options arguement holds capped, size, and max.
+            - Set capped to true to create a capped collection.
+            - Size is in bytes and will be converted to a base 2 number.
+            - Max represents the maximum number of documents in the collection.
+
+Replica Sets
+    - Background
+        - When you send a command from a client to the mongoDB server it talks to a "primary node"
+        - This is a computer where the mongodb server exists.
+
+    - What is a replica set?
+        - A replica set is an exact copy of the primary node.
+        - Replica sets are updated asynchronously (sometime in the near future)
+
+    - Why Replica Sets?
+        - Fault Tolerancy
+            - Replica sets can be read when the primary node goes down.
+        - Read Performance
+            - When setup correctly, secondary nodes can be read from along side the primary node.
+            - You will have three machines assisting in read queries which will speed things up.
+        
+Sharding (Horizontal Scaling)
+    - To start off your MongoDB server will likely being running on a single machine.
+    - You can upgrade your machine as your app grows.
+        - More CPU
+        - More RAM
+        - Ect
+
+    - What happens when one computer isn't enough?
+    - Sharding is the process of distributing your mongodb server across multiple machines.
+    - Data is distributed NOT replicated.
+    - Queries have to be run on all Shards or the right shard.
+
+    - How do we determine which shard to query?
+        - mongos (router)
+            - A special router mongo uses to find the correct shard.
+        - shard key
+            - a key that goes into every document to determine which shard should be accessed.
+            - this key is set by the db admin and should be evenly distributed across the dataset.
+                - this ensures a good performance and equal data in all shards.
+        - Queries
+            - If you find query does not include the shard key field then mongo will broadcast that query.
+                -  A broadcast will go to all shards until the data is found.
+            - If the find query includes the shard key the mongos router will execute the query on the shard with the matching key.
