@@ -1,0 +1,85 @@
+Introduction
+    - Authentication & Authorization
+        - Being able to determine which users are accesing the database and what data they should be allowed to access.
+    - Transport Encryption
+        - Encryption data from the client to the server.
+        - Prevents spoofing / man-in-the-middle attacks.
+    - Encryption At Rest
+        - Encrypting data in the database so if unwanted users gain access the data is still encrypted.
+        - Password and other user sensitive data.
+
+Role Based Access
+    - Authentication
+        - Indentifies valid users of the database.
+        - Ex: You are employed and therefore may access the office.
+        - Your Id will authenicate you. 
+            - You are able to identify yourself with a credential.
+
+    - Authorization
+        - Identifies what resources an authenticated user can access.
+        - Ex: An HR rep has access to workday to file claims.
+        - Ex: A finance manager user an internal system to compile expense reports.
+
+    - A user in MongoDB is a person or program who directly accesses the database.
+        - This is not a user of your application.
+        - You application will use a driver to connect to the database.
+            - That driver is the "user" in that case.
+    
+    - Privileges
+        - Groups of resources and actions.
+        - Ex: resource -> db.products | action -> insert()
+            - A user with this privilege can insert data into the products collection of the "db" database.
+    
+    - Roles
+        - Groups of privileges.
+        - The flexibility of roles & privileges allows you to have multiple roles that give different levles of access.
+            - Data Analyst Role
+                - Probably some kind of read only privilege
+            - Data Admin Role
+                - Full access to all databases.
+            - Product Specialist Role
+                - Read only access to the product database.
+            
+Creating Users In MongoDB
+    - Reference: https://www.mongodb.com/docs/manual/tutorial/create-users/
+
+    - Use the createUser(username, password, roles) to create a user.
+        - username and password are strings.
+        - roles is an array of roles
+            - "userAdminAnyDatabase"
+                - A role that allows a user access to administrate over all databases.
+    - When connecting to a "system" for the first time mongo has a localhost exception.
+    - If no user is created one can be created from the localhost.
+        - This ensures you can create a user even if one never existed.
+    - After creating a user you will have to login as that user to gain your access.
+        - run the mongosh commmand with the -u (username) and -p (password) arguments.
+        - db.auth(username, password)
+
+Built In Roles
+    - Reference: https://www.mongodb.com/docs/manual/reference/built-in-roles/
+
+    Database User Roles
+        - Read
+            - Can only see data.
+        - Read/Write
+            - Can see and edit data.
+
+    Database Admin Roles
+        - Only applies to a particular database.
+        - dbAdmin
+            - Can administrate over the database.
+        - userAdmin
+            - Can administrate over users.
+        
+    All Database Roles
+        - Same roles as above but applies to all present and future in your system.
+        - readAnyDatabase
+        - readWriteAndDatabase
+        - userAdminAnyDatabase
+        - dbAdminAnyDatabase
+        
+Transport Encryption
+    - Reference: https://www.mongodb.com/docs/manual/tutorial/configure-ssl/
+
+    - MongoDB uses TLS to encrypt data from client to server.
+
